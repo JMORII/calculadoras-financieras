@@ -173,9 +173,9 @@ export default function CompoundInterestCalculator() {
                   tickFormatter={(value) => `${(value / 1000).toFixed(0)}k€`}
                 />
                 <Tooltip
-                  formatter={(value: number) => [formatCurrency(value), '']}
-                  labelFormatter={(label) => `Año ${label}`}
-                />
+  formatter={(value) => [formatCurrency(Number(value || 0)), '']}
+  labelFormatter={(label) => `Año ${label}`}
+/>
                 <Legend />
                 <Area
                   type="monotone"
