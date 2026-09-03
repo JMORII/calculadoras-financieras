@@ -1,116 +1,238 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from 'react';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
 
 export default function CompoundInterestCalculator() {
-  const [capital, setCapital] = useState("");
-  const [tasa, setTasa] = useState("");
-  const [tiempo, setTiempo] = useState("");
-  const [resultado, setResultado] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [initialAmount, setInitialAmount] = useState<number>(1000);
+  const [monthlyContribution, setMonthlyContribution] = useState<number>(100);
+  const [annualRate, setAnnualRate] = useState<number>(7);
+  const [years, setYears] = useState<number>(10);
+  const [isMounted, setIsMounted] = useState(false);
 
-  function calcular() {
-    const c = parseFloat(capital);
-    const r = parseFloat(tasa) / 100;
-    const t = parseFloat(tiempo);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-    // Validación: campos vacíos o no numéricos
-    if (capital === "" || tasa === "" || tiempo === "") {
-      setError("Por favor, rellena todos los campos.");
-      setResultado(null);
-      return;
+  const calculation = useMemo(() => {
+    const monthlyRate = annualRate / 100 / 12;
+    const totalMonths = years * 12;
+
+    let currentBalance = initialAmount;
+    let totalInvested = initialAmount;
+
+    const yearlyData = [
+      {
+        year: 0,
+        balance: Math.round(initialAmount),
+        invested: Math.round(initialAmount),
+        interest: 0,
+      }
+    ];
+
+    for (let month = 1; month <= totalMonths; month++) {
+      currentBalance = currentBalance * (1 + monthlyRate) + monthlyContribution;
+      totalInvested += monthlyContribution;
+
+      if (month % 12 === 0) {
+        const currentYear = month / 12;
+        const totalInterest = currentBalance - totalInvested;
+
+        yearlyData.push({
+          year: currentYear,
+          balance: Math.round(currentBalance),
+          invested: Math.round(totalInvested),
+          interest: Math.round(Math.max(0, totalInterest)),
+        });
+      }
     }
 
-    if (isNaN(c) || isNaN(r) || isNaN(t)) {
-      setError("Introduce solo números válidos.");
-      setResultado(null);
-      return;
-    }
+    const finalBalance = currentBalance;
+    const totalInterest = finalBalance - totalInvested;
 
-    // Validación: valores negativos no tienen sentido aquí
-    if (c <= 0 || t <= 0) {
-      setError("El capital y el tiempo deben ser mayores que cero.");
-      setResultado(null);
-      return;
-    }
+    return {
+      finalBalance: Math.round(finalBalance),
+      totalInvested: Math.round(totalInvested),
+      totalInterest: Math.round(Math.max(0, totalInterest)),
+      yearlyData,
+    };
+  }, [initialAmount, monthlyContribution, annualRate, years]);
 
-    if (r < 0) {
-      setError("La tasa de interés no puede ser negativa.");
-      setResultado(null);
-      return;
-    }
-
-    // Todo correcto: calculamos
-    setError(null);
-    const montoFinal = c * Math.pow(1 + r, t);
-    setResultado(montoFinal);
-  }
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
 
   return (
-    <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-      <div className="mb-4">
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Capital inicial (€)
-        </label>
-        <input
-          type="number"
-          value={capital}
-          onChange={(e) => setCapital(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2"
-          placeholder="1000"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Tasa de interés anual (%)
-        </label>
-        <input
-          type="number"
-          value={tasa}
-          onChange={(e) => setTasa(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2"
-          placeholder="5"
-        />
-      </div>
-
-      <div className="mb-6">
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Tiempo (años)
-        </label>
-        <input
-          type="number"
-          value={tiempo}
-          onChange={(e) => setTiempo(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2"
-          placeholder="10"
-        />
-      </div>
-
-      <button
-        onClick={calcular}
-        className="w-full rounded-lg bg-blue-600 py-2 font-semibold text-white hover:bg-blue-700"
-      >
-        Calcular
-      </button>
-
-      {error && (
-        <div className="mt-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-600">
-          {error}
+    <div className="w-full max-w-4xl mx-auto p-4 space-y-8">
+      {/* Controles de Entrada */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-100">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Inversión inicial (€)
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={initialAmount}
+            onChange={(e) => setInitialAmount(Number(e.target.value))}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
+          />
         </div>
-      )}
 
-      {resultado !== null && !error && (
-        <div className="mt-6 rounded-lg bg-blue-50 p-4 text-center">
-          <p className="text-sm text-gray-600">Monto final estimado</p>
-          <p className="text-2xl font-bold text-blue-700">
-            {resultado.toLocaleString("es-ES", {
-              maximumFractionDigits: 2,
-            })}{" "}
-            €
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Aportación mensual (€)
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={monthlyContribution}
+            onChange={(e) => setMonthlyContribution(Number(e.target.value))}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Interés anual (%)
+          </label>
+          <input
+            type="number"
+            step="0.1"
+            min="0"
+            value={annualRate}
+            onChange={(e) => setAnnualRate(Number(e.target.value))}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Años de inversión
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="50"
+            value={years}
+            onChange={(e) => setYears(Number(e.target.value))}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
+          />
+        </div>
+      </div>
+
+      {/* Tarjetas de Resumen */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
+          <p className="text-sm font-medium text-blue-600">Monto Final Estimado</p>
+          <p className="text-3xl font-bold text-blue-900 mt-1">
+            {formatCurrency(calculation.finalBalance)}
           </p>
         </div>
-      )}
+
+        <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
+          <p className="text-sm font-medium text-gray-600">Total Invertido</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">
+            {formatCurrency(calculation.totalInvested)}
+          </p>
+        </div>
+
+        <div className="bg-green-50 p-5 rounded-xl border border-green-100">
+          <p className="text-sm font-medium text-green-600">Intereses Generados</p>
+          <p className="text-2xl font-bold text-green-800 mt-1">
+            {formatCurrency(calculation.totalInterest)}
+          </p>
+        </div>
+      </div>
+
+      {/* Gráfico Interactivo */}
+      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Crecimiento del Capital en el Tiempo
+        </h3>
+        <div className="h-72 w-full">
+          {isMounted && (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={calculation.yearlyData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="year" unit=" años" />
+                <YAxis
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k€`}
+                />
+                <Tooltip
+                  formatter={(value: number) => [formatCurrency(value), '']}
+                  labelFormatter={(label) => `Año ${label}`}
+                />
+                <Legend />
+                <Area
+                  type="monotone"
+                  dataKey="invested"
+                  name="Total Invertido"
+                  stackId="1"
+                  stroke="#9CA3AF"
+                  fill="#E5E7EB"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="interest"
+                  name="Intereses Generados"
+                  stackId="1"
+                  stroke="#16A34A"
+                  fill="#86EFAC"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      {/* Tabla Desglose Año a Año */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Desglose Año a Año
+          </h3>
+        </div>
+        <div className="overflow-x-auto max-h-80 overflow-y-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase sticky top-0">
+              <tr>
+                <th className="py-3 px-4">Año</th>
+                <th className="py-3 px-4">Invertido</th>
+                <th className="py-3 px-4">Intereses</th>
+                <th className="py-3 px-4">Balance Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+              {calculation.yearlyData.map((row) => (
+                <tr key={row.year} className="hover:bg-gray-50">
+                  <td className="py-3 px-4 font-medium">Año {row.year}</td>
+                  <td className="py-3 px-4">{formatCurrency(row.invested)}</td>
+                  <td className="py-3 px-4 text-green-600 font-medium">
+                    {formatCurrency(row.interest)}
+                  </td>
+                  <td className="py-3 px-4 font-bold">
+                    {formatCurrency(row.balance)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
