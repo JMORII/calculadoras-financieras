@@ -2,13 +2,19 @@ import CompoundInterestCalculator from "@/app/components/CompoundInterestCalcula
 
 export default function InteresCompuestoPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
-      <h1 className="mb-2 text-4xl font-bold text-gray-900">
-        Calculadora de Interés Compuesto
-      </h1>
-      <p className="mb-8 text-lg text-gray-600">
-        Calcula cuánto crecerá tu dinero con el tiempo
-      </p>
+    <main className="flex min-h-screen flex-col items-center bg-pergamino px-6 py-16">
+      <div className="mb-10 w-full max-w-md text-center">
+        <p className="mb-3 text-sm font-medium text-piedra">
+          Calculadora financiera
+        </p>
+        <h1 className="mb-4 font-serif text-4xl font-bold text-tinta">
+          Interés Compuesto
+        </h1>
+        <p className="text-piedra">
+          Calcula cuánto crecerá tu dinero con el tiempo, reinvirtiendo los
+          intereses generados.
+        </p>
+      </div>
 
       <CompoundInterestCalculator />
     </main>

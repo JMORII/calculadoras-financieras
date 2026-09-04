@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState } from "react";
 import {
   AreaChart,
   Area,
@@ -9,230 +9,284 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
-} from 'recharts';
+} from "recharts";
+type DatoAnual = {
+  año: number;
+  capitalInicial: number;
+  interesGanado: number;
+  capitalFinal: number;
+};
 
 export default function CompoundInterestCalculator() {
-  const [initialAmount, setInitialAmount] = useState<number>(1000);
-  const [monthlyContribution, setMonthlyContribution] = useState<number>(100);
-  const [annualRate, setAnnualRate] = useState<number>(7);
-  const [years, setYears] = useState<number>(10);
-  const [isMounted, setIsMounted] = useState(false);
+  const [capital, setCapital] = useState("");
+  const [tasa, setTasa] = useState("");
+  const [tiempo, setTiempo] = useState("");
+  const [datos, setDatos] = useState<DatoAnual[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  function calcular() {
+    const c = parseFloat(capital);
+    const r = parseFloat(tasa) / 100;
+    const t = parseFloat(tiempo);
 
-  const calculation = useMemo(() => {
-    const monthlyRate = annualRate / 100 / 12;
-    const totalMonths = years * 12;
-
-    let currentBalance = initialAmount;
-    let totalInvested = initialAmount;
-
-    const yearlyData = [
-      {
-        year: 0,
-        balance: Math.round(initialAmount),
-        invested: Math.round(initialAmount),
-        interest: 0,
-      }
-    ];
-
-    for (let month = 1; month <= totalMonths; month++) {
-      currentBalance = currentBalance * (1 + monthlyRate) + monthlyContribution;
-      totalInvested += monthlyContribution;
-
-      if (month % 12 === 0) {
-        const currentYear = month / 12;
-        const totalInterest = currentBalance - totalInvested;
-
-        yearlyData.push({
-          year: currentYear,
-          balance: Math.round(currentBalance),
-          invested: Math.round(totalInvested),
-          interest: Math.round(Math.max(0, totalInterest)),
-        });
-      }
+    if (capital === "" || tasa === "" || tiempo === "") {
+      setError("Por favor, rellena todos los campos.");
+      setDatos(null);
+      return;
     }
 
-    const finalBalance = currentBalance;
-    const totalInterest = finalBalance - totalInvested;
+    if (isNaN(c) || isNaN(r) || isNaN(t)) {
+      setError("Introduce solo números válidos.");
+      setDatos(null);
+      return;
+    }
 
-    return {
-      finalBalance: Math.round(finalBalance),
-      totalInvested: Math.round(totalInvested),
-      totalInterest: Math.round(Math.max(0, totalInterest)),
-      yearlyData,
-    };
-  }, [initialAmount, monthlyContribution, annualRate, years]);
+    if (c <= 0 || t <= 0) {
+      setError("El capital y el tiempo deben ser mayores que cero.");
+      setDatos(null);
+      return;
+    }
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
+    if (r < 0) {
+      setError("La tasa de interés no puede ser negativa.");
+      setDatos(null);
+      return;
+    }
+
+    if (t > 100) {
+      setError("Introduce un número de años realista (máximo 100).");
+      setDatos(null);
+      return;
+    }
+
+    setError(null);
+
+    const filas: DatoAnual[] = [];
+    let capitalActual = c;
+
+    for (let año = 1; año <= Math.floor(t); año++) {
+      const capitalInicial = capitalActual;
+      const capitalFinal = capitalInicial * (1 + r);
+      const interesGanado = capitalFinal - capitalInicial;
+
+      filas.push({ año, capitalInicial, interesGanado, capitalFinal });
+      capitalActual = capitalFinal;
+    }
+
+    setDatos(filas);
+  }
+
+  // Valores para el resumen final (solo se calculan si hay datos)
+  const inversionInicial = datos ? datos[0].capitalInicial : 0;
+  const montoFinal = datos ? datos[datos.length - 1].capitalFinal : 0;
+  const beneficioTotal = montoFinal - inversionInicial;
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 space-y-8">
-      {/* Controles de Entrada */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-100">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Inversión inicial (€)
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={initialAmount}
-            onChange={(e) => setInitialAmount(Number(e.target.value))}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
-          />
-        </div>
+    <div className="w-full max-w-md border border-piedra/20 bg-hueso p-8">
+      <Campo
+        etiqueta="Capital inicial (€)"
+        valor={capital}
+        onChange={setCapital}
+        placeholder="1000"
+      />
+      <Campo
+        etiqueta="Tasa de interés anual (%)"
+        valor={tasa}
+        onChange={setTasa}
+        placeholder="5"
+      />
+      <Campo
+        etiqueta="Tiempo (años)"
+        valor={tiempo}
+        onChange={setTiempo}
+        placeholder="10"
+      />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Aportación mensual (€)
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={monthlyContribution}
-            onChange={(e) => setMonthlyContribution(Number(e.target.value))}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
-          />
-        </div>
+      <button
+        onClick={calcular}
+        className="mt-2 w-full border border-tinta bg-tinta py-3 font-semibold text-hueso transition hover:border-cobre hover:bg-cobre"
+      >
+        Calcular
+      </button>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Interés anual (%)
-          </label>
-          <input
-            type="number"
-            step="0.1"
-            min="0"
-            value={annualRate}
-            onChange={(e) => setAnnualRate(Number(e.target.value))}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
-          />
-        </div>
+      {error && (
+        <p className="mt-4 border-l-2 border-red-700 pl-3 text-sm text-red-700">
+          {error}
+        </p>
+      )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Años de inversión
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="50"
-            value={years}
-            onChange={(e) => setYears(Number(e.target.value))}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
-          />
-        </div>
-      </div>
+      {datos && !error && (
+        <>
+          <div className="mt-6 border-t border-piedra/20 pt-4 text-center">
+            <p className="text-sm text-piedra">Monto final estimado</p>
+            <p className="font-serif text-4xl font-bold text-cobre">
+              {montoFinal.toLocaleString("es-ES", {
+                maximumFractionDigits: 2,
+              })}{" "}
+              €
+            </p>
+          </div>
 
-      {/* Tarjetas de Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
-          <p className="text-sm font-medium text-blue-600">Monto Final Estimado</p>
-          <p className="text-3xl font-bold text-blue-900 mt-1">
-            {formatCurrency(calculation.finalBalance)}
-          </p>
-        </div>
-
-        <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-          <p className="text-sm font-medium text-gray-600">Total Invertido</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">
-            {formatCurrency(calculation.totalInvested)}
-          </p>
-        </div>
-
-        <div className="bg-green-50 p-5 rounded-xl border border-green-100">
-          <p className="text-sm font-medium text-green-600">Intereses Generados</p>
-          <p className="text-2xl font-bold text-green-800 mt-1">
-            {formatCurrency(calculation.totalInterest)}
-          </p>
-        </div>
-      </div>
-
-      {/* Gráfico Interactivo */}
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Crecimiento del Capital en el Tiempo
-        </h3>
-        <div className="h-72 w-full">
-          {isMounted && (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={calculation.yearlyData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="year" unit=" años" />
+          {/* Resumen: inversión, beneficio y total */}
+          <div className="mt-6 grid grid-cols-3 gap-2 border-t border-piedra/20 pt-4 text-center">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-piedra">
+                Invertido
+              </p>
+              <p className="mt-1 font-semibold text-tinta">
+                {inversionInicial.toLocaleString("es-ES", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                €
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-piedra">
+                Beneficio
+              </p>
+              <p className="mt-1 font-semibold text-cobre">
+                +
+                {beneficioTotal.toLocaleString("es-ES", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                €
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-piedra">
+                Total
+              </p>
+              <p className="mt-1 font-semibold text-tinta">
+                {montoFinal.toLocaleString("es-ES", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                €
+              </p>
+            </div>
+          </div>
+          {/* Gráfico de evolución */}
+          <div className="mt-6 border-t border-piedra/20 pt-4">
+            <p className="mb-3 text-xs uppercase tracking-wide text-piedra">
+              Evolución del capital
+            </p>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={datos}>
+                <defs>
+                  <linearGradient id="colorCapital" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#B8863F" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#B8863F" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#5C6670" strokeOpacity={0.15} />
+                <XAxis
+                  dataKey="año"
+                  tick={{ fontSize: 12, fill: "#5C6670" }}
+                  axisLine={{ stroke: "#5C6670", strokeOpacity: 0.2 }}
+                  tickLine={false}
+                />
                 <YAxis
-                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k€`}
+                  tick={{ fontSize: 12, fill: "#5C6670" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={60}
+                  tickFormatter={(value) =>
+                    value.toLocaleString("es-ES", { maximumFractionDigits: 0 })
+                  }
                 />
-                <Tooltip
-  formatter={(value) => [formatCurrency(Number(value || 0)), '']}
-  labelFormatter={(label) => `Año ${label}`}
-/>
-                <Legend />
+                                <Tooltip
+                  formatter={(value) => [
+                    `${Number(value).toLocaleString("es-ES", { maximumFractionDigits: 2 })} €`,
+                    "Capital",
+                  ]}
+                  labelFormatter={(label) => `Año ${label}`}
+                  contentStyle={{
+                    backgroundColor: "#0F1E2E",
+                    border: "none",
+                    borderRadius: 0,
+                    color: "#FAFAF7",
+                  }}
+                />
                 <Area
                   type="monotone"
-                  dataKey="invested"
-                  name="Total Invertido"
-                  stackId="1"
-                  stroke="#9CA3AF"
-                  fill="#E5E7EB"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="interest"
-                  name="Intereses Generados"
-                  stackId="1"
-                  stroke="#16A34A"
-                  fill="#86EFAC"
+                  dataKey="capitalFinal"
+                  stroke="#B8863F"
+                  strokeWidth={2}
+                  fill="url(#colorCapital)"
                 />
               </AreaChart>
             </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      {/* Tabla Desglose Año a Año */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800">
-            Desglose Año a Año
-          </h3>
-        </div>
-        <div className="overflow-x-auto max-h-80 overflow-y-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase sticky top-0">
-              <tr>
-                <th className="py-3 px-4">Año</th>
-                <th className="py-3 px-4">Invertido</th>
-                <th className="py-3 px-4">Intereses</th>
-                <th className="py-3 px-4">Balance Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-              {calculation.yearlyData.map((row) => (
-                <tr key={row.year} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">Año {row.year}</td>
-                  <td className="py-3 px-4">{formatCurrency(row.invested)}</td>
-                  <td className="py-3 px-4 text-green-600 font-medium">
-                    {formatCurrency(row.interest)}
-                  </td>
-                  <td className="py-3 px-4 font-bold">
-                    {formatCurrency(row.balance)}
-                  </td>
+          </div>
+          {/* Tabla año a año */}
+          <div className="mt-6 max-h-64 overflow-y-auto border-t border-piedra/20 pt-4">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-piedra">
+                  <th className="pb-2">Año</th>
+                  <th className="pb-2 text-right">Capital inicial</th>
+                  <th className="pb-2 text-right">Interés ganado</th>
+                  <th className="pb-2 text-right">Capital final</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody>
+                {datos.map((fila) => (
+                  <tr
+                    key={fila.año}
+                    className="border-t border-piedra/10 text-tinta"
+                  >
+                    <td className="py-2">{fila.año}</td>
+                    <td className="py-2 text-right">
+                      {fila.capitalInicial.toLocaleString("es-ES", {
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      €
+                    </td>
+                    <td className="py-2 text-right text-cobre">
+                      +
+                      {fila.interesGanado.toLocaleString("es-ES", {
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      €
+                    </td>
+                    <td className="py-2 text-right font-medium">
+                      {fila.capitalFinal.toLocaleString("es-ES", {
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      €
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Campo({
+  etiqueta,
+  valor,
+  onChange,
+  placeholder,
+}: {
+  etiqueta: string;
+  valor: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div className="mb-5 border-b border-piedra/20 pb-1">
+      <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-piedra">
+        {etiqueta}
+      </label>
+      <input
+        type="number"
+        value={valor}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-transparent py-1 text-lg text-tinta outline-none placeholder:text-piedra/40"
+        placeholder={placeholder}
+      />
     </div>
   );
 }
