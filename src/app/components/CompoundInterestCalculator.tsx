@@ -10,76 +10,103 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+
 type DatoAnual = {
   año: number;
   capitalInicial: number;
+  aportacion: number;
   interesGanado: number;
   capitalFinal: number;
 };
 
 export default function CompoundInterestCalculator() {
   const [capital, setCapital] = useState("");
+  const [mensual, setMensual] = useState("");
   const [tasa, setTasa] = useState("");
   const [tiempo, setTiempo] = useState("");
-  const [datos, setDatos] = useState<DatoAnual[] | null>(null);
+  const [aportacionesExtra, setAportacionesExtra] = useState<number[] | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
 
-  function calcular() {
-    const c = parseFloat(capital);
-    const r = parseFloat(tasa) / 100;
-    const t = parseFloat(tiempo);
+  const c = parseFloat(capital);
+  const m = parseFloat(mensual) || 0;
+  const r = parseFloat(tasa) / 100;
+  const t = parseFloat(tiempo);
+  const aportacionAnualFija = m * 12;
 
+  function calcular() {
     if (capital === "" || tasa === "" || tiempo === "") {
-      setError("Por favor, rellena todos los campos.");
-      setDatos(null);
+      setError("Por favor, rellena capital, tasa y tiempo.");
+      setAportacionesExtra(null);
       return;
     }
 
     if (isNaN(c) || isNaN(r) || isNaN(t)) {
       setError("Introduce solo números válidos.");
-      setDatos(null);
+      setAportacionesExtra(null);
       return;
     }
 
     if (c <= 0 || t <= 0) {
       setError("El capital y el tiempo deben ser mayores que cero.");
-      setDatos(null);
+      setAportacionesExtra(null);
       return;
     }
 
-    if (r < 0) {
-      setError("La tasa de interés no puede ser negativa.");
-      setDatos(null);
+    if (r < 0 || m < 0) {
+      setError("La tasa y la aportación mensual no pueden ser negativas.");
+      setAportacionesExtra(null);
       return;
     }
 
     if (t > 100) {
       setError("Introduce un número de años realista (máximo 100).");
-      setDatos(null);
+      setAportacionesExtra(null);
       return;
     }
 
     setError(null);
+    setAportacionesExtra(new Array(Math.floor(t)).fill(0));
+  }
 
+  function actualizarAportacionExtra(indice: number, valor: string) {
+    if (!aportacionesExtra) return;
+    const nuevoValor = parseFloat(valor);
+    const copia = [...aportacionesExtra];
+    copia[indice] = isNaN(nuevoValor) ? 0 : nuevoValor;
+    setAportacionesExtra(copia);
+  }
+
+  let datos: DatoAnual[] | null = null;
+  if (aportacionesExtra) {
     const filas: DatoAnual[] = [];
     let capitalActual = c;
 
-    for (let año = 1; año <= Math.floor(t); año++) {
-      const capitalInicial = capitalActual;
+    for (let i = 0; i < aportacionesExtra.length; i++) {
+      const año = i + 1;
+      const aportacion = aportacionAnualFija + aportacionesExtra[i];
+      const capitalInicial = capitalActual + aportacion;
       const capitalFinal = capitalInicial * (1 + r);
       const interesGanado = capitalFinal - capitalInicial;
 
-      filas.push({ año, capitalInicial, interesGanado, capitalFinal });
+      filas.push({ año, capitalInicial, aportacion, interesGanado, capitalFinal });
       capitalActual = capitalFinal;
     }
 
-    setDatos(filas);
+    datos = filas;
   }
 
-  // Valores para el resumen final (solo se calculan si hay datos)
-  const inversionInicial = datos ? datos[0].capitalInicial : 0;
+  const inversionInicial = c || 0;
+  const totalAportacionFija = aportacionesExtra
+    ? aportacionAnualFija * aportacionesExtra.length
+    : 0;
+  const totalExtra = aportacionesExtra
+    ? aportacionesExtra.reduce((suma, v) => suma + v, 0)
+    : 0;
+  const totalInvertido = inversionInicial + totalAportacionFija + totalExtra;
   const montoFinal = datos ? datos[datos.length - 1].capitalFinal : 0;
-  const beneficioTotal = montoFinal - inversionInicial;
+  const beneficioTotal = montoFinal - totalInvertido;
 
   return (
     <div className="w-full max-w-md border border-piedra/20 bg-hueso p-8">
@@ -88,6 +115,12 @@ export default function CompoundInterestCalculator() {
         valor={capital}
         onChange={setCapital}
         placeholder="1000"
+      />
+      <Campo
+        etiqueta="Aportación mensual (€) — opcional"
+        valor={mensual}
+        onChange={setMensual}
+        placeholder="50"
       />
       <Campo
         etiqueta="Tasa de interés anual (%)"
@@ -120,21 +153,17 @@ export default function CompoundInterestCalculator() {
           <div className="mt-6 border-t border-piedra/20 pt-4 text-center">
             <p className="text-sm text-piedra">Monto final estimado</p>
             <p className="font-serif text-4xl font-bold text-cobre">
-              {montoFinal.toLocaleString("es-ES", {
-                maximumFractionDigits: 2,
-              })}{" "}
-              €
+              {montoFinal.toLocaleString("es-ES", { maximumFractionDigits: 2 })} €
             </p>
           </div>
 
-          {/* Resumen: inversión, beneficio y total */}
           <div className="mt-6 grid grid-cols-3 gap-2 border-t border-piedra/20 pt-4 text-center">
             <div>
               <p className="text-xs uppercase tracking-wide text-piedra">
                 Invertido
               </p>
               <p className="mt-1 font-semibold text-tinta">
-                {inversionInicial.toLocaleString("es-ES", {
+                {totalInvertido.toLocaleString("es-ES", {
                   maximumFractionDigits: 0,
                 })}{" "}
                 €
@@ -157,14 +186,12 @@ export default function CompoundInterestCalculator() {
                 Total
               </p>
               <p className="mt-1 font-semibold text-tinta">
-                {montoFinal.toLocaleString("es-ES", {
-                  maximumFractionDigits: 0,
-                })}{" "}
+                {montoFinal.toLocaleString("es-ES", { maximumFractionDigits: 0 })}{" "}
                 €
               </p>
             </div>
           </div>
-          {/* Gráfico de evolución */}
+
           <div className="mt-6 border-t border-piedra/20 pt-4">
             <p className="mb-3 text-xs uppercase tracking-wide text-piedra">
               Evolución del capital
@@ -193,7 +220,7 @@ export default function CompoundInterestCalculator() {
                     value.toLocaleString("es-ES", { maximumFractionDigits: 0 })
                   }
                 />
-                                <Tooltip
+                <Tooltip
                   formatter={(value) => [
                     `${Number(value).toLocaleString("es-ES", { maximumFractionDigits: 2 })} €`,
                     "Capital",
@@ -216,29 +243,38 @@ export default function CompoundInterestCalculator() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          {/* Tabla año a año */}
-          <div className="mt-6 max-h-64 overflow-y-auto border-t border-piedra/20 pt-4">
+
+          <div className="mt-6 max-h-72 overflow-y-auto border-t border-piedra/20 pt-4">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-piedra">
                   <th className="pb-2">Año</th>
-                  <th className="pb-2 text-right">Capital inicial</th>
+                  <th className="pb-2 text-right">Extra puntual</th>
                   <th className="pb-2 text-right">Interés ganado</th>
                   <th className="pb-2 text-right">Capital final</th>
                 </tr>
               </thead>
               <tbody>
-                {datos.map((fila) => (
+                {datos.map((fila, indice) => (
                   <tr
                     key={fila.año}
                     className="border-t border-piedra/10 text-tinta"
                   >
                     <td className="py-2">{fila.año}</td>
-                    <td className="py-2 text-right">
-                      {fila.capitalInicial.toLocaleString("es-ES", {
-                        maximumFractionDigits: 2,
-                      })}{" "}
-                      €
+                    <td className="py-1 text-right">
+                      <input
+                        type="number"
+                        value={
+                          aportacionesExtra
+                            ? aportacionesExtra[indice] || ""
+                            : ""
+                        }
+                        onChange={(e) =>
+                          actualizarAportacionExtra(indice, e.target.value)
+                        }
+                        placeholder="0"
+                        className="w-20 border-b border-piedra/30 bg-transparent text-right outline-none focus:border-cobre"
+                      />
                     </td>
                     <td className="py-2 text-right text-cobre">
                       +
