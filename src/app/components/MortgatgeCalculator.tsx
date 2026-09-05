@@ -166,7 +166,7 @@ export default function MortgageCalculator() {
             <Bar
               dataKey="tasa"
               cursor="pointer"
-              onClick={(data) => setTasa(String(data.tasa))}
+                            onClick={(data) => setTasa(String(data.payload.tasa))}
             >
               {REFERENCIAS_TIPOS.map((entrada, indice) => (
                 <Cell key={indice} fill={entrada.color} />
