@@ -20,28 +20,18 @@ export default function CookiesPage() {
         <p>
           Al visitar esta web por primera vez desde el Espacio Económico
           Europeo, el Reino Unido o Suiza, se te mostrará un aviso de
-          consentimiento donde puedes <strong>aceptar, rechazar</strong>{" "}
-          o <strong>gestionar tus opciones</strong> respecto al uso de
-          estas cookies, en cumplimiento del RGPD (Reglamento General de
-          Protección de Datos).
+          consentimiento donde puedes aceptar, rechazar o gestionar tus
+          opciones respecto al uso de estas cookies, en cumplimiento del
+          RGPD (Reglamento General de Protección de Datos).
         </p>
         <p>
-          Puedes cambiar tu decisión en cualquier momento volviendo a
-          abrir ese aviso, o configurando tu navegador para bloquear
-          cookies de terceros.
+          Puedes cambiar tu decisión en cualquier momento volviendo a abrir
+          ese aviso, o configurando tu navegador para bloquear cookies de
+          terceros.
         </p>
         <p>
           Para más información sobre cómo Google utiliza los datos,
-          consulta la{" "}
-          
-            href="https://policies.google.com/technologies/partner-sites"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-cobre"
-          >
-            política de socios de Google
-          </a>
-          .
+          consulta la política de socios de Google en policies.google.com.
         </p>
       </div>
     </main>
