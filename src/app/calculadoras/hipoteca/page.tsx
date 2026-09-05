@@ -1,4 +1,4 @@
-import MortgageCalculator from "@/app/components/MortgatgeCalculator";
+import MortgageCalculator from "@/app/components/MortgageCalculator";
 
 export default function HipotecaPage() {
   return (
