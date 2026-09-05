@@ -1,10 +1,11 @@
 export default function CookiesPage() {
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-6 text-3xl font-bold text-gray-900">
+    <main className="mx-auto max-w-2xl bg-pergamino px-6 py-16">
+      <p className="mb-3 text-sm font-medium text-piedra">Legal</p>
+      <h1 className="mb-8 font-serif text-4xl font-bold text-tinta">
         Política de Cookies
       </h1>
-      <div className="space-y-4 text-gray-700">
+      <div className="space-y-5 text-piedra">
         <p>
           Una cookie es un pequeño archivo que se guarda en tu navegador
           cuando visitas una web. Se utiliza para recordar información sobre

@@ -1,8 +1,11 @@
 export default function AvisoLegalPage() {
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-6 text-3xl font-bold text-gray-900">Aviso Legal</h1>
-      <div className="space-y-4 text-gray-700">
+    <main className="mx-auto max-w-2xl bg-pergamino px-6 py-16">
+      <p className="mb-3 text-sm font-medium text-piedra">Legal</p>
+      <h1 className="mb-8 font-serif text-4xl font-bold text-tinta">
+        Aviso Legal
+      </h1>
+      <div className="space-y-5 text-piedra">
         <p>
           Este sitio web, CalculaFinanzas, tiene como objetivo ofrecer
           herramientas de cálculo financiero de carácter informativo y
