@@ -12,14 +12,36 @@ export default function CookiesPage() {
           tu visita.
         </p>
         <p>
-          Actualmente, esta web no utiliza cookies propias. En el futuro,
-          si integramos publicidad a través de Google AdSense, es posible
-          que se utilicen cookies de terceros para mostrar anuncios
-          relevantes y medir su rendimiento.
+          Esta web utiliza <strong>Google AdSense</strong> para mostrar
+          publicidad. Google y sus socios publicitarios pueden instalar
+          cookies propias y de terceros para personalizar los anuncios,
+          medir su rendimiento, y prevenir el fraude publicitario.
         </p>
         <p>
-          Puedes configurar tu navegador para aceptar o rechazar cookies, o
-          para que te avise cuando un sitio intente instalar una.
+          Al visitar esta web por primera vez desde el Espacio Económico
+          Europeo, el Reino Unido o Suiza, se te mostrará un aviso de
+          consentimiento donde puedes <strong>aceptar, rechazar</strong>{" "}
+          o <strong>gestionar tus opciones</strong> respecto al uso de
+          estas cookies, en cumplimiento del RGPD (Reglamento General de
+          Protección de Datos).
+        </p>
+        <p>
+          Puedes cambiar tu decisión en cualquier momento volviendo a
+          abrir ese aviso, o configurando tu navegador para bloquear
+          cookies de terceros.
+        </p>
+        <p>
+          Para más información sobre cómo Google utiliza los datos,
+          consulta la{" "}
+          
+            href="https://policies.google.com/technologies/partner-sites"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-cobre"
+          >
+            política de socios de Google
+          </a>
+          .
         </p>
       </div>
     </main>

@@ -9,17 +9,26 @@ export default function PrivacidadPage() {
         <p>
           En CalculaFinanzas respetamos tu privacidad. Esta web no solicita
           ni almacena datos personales a través de las calculadoras: todos
-          los cálculos se realizan directamente en tu navegador.
+          los cálculos se realizan directamente en tu navegador, y ningún
+          dato introducido en los formularios se envía a nuestros
+          servidores.
         </p>
         <p>
-          Es posible que en el futuro utilicemos cookies y servicios de
-          terceros, como Google AdSense, para mostrar publicidad. Estos
-          servicios pueden recopilar datos de forma anónima para
-          personalizar los anuncios que ves.
+          Esta web utiliza <strong>Google AdSense</strong> para mostrar
+          publicidad. Este servicio puede recopilar y procesar datos de
+          forma anónima (como tu dirección IP o el tipo de dispositivo)
+          para mostrar anuncios relevantes y medir su rendimiento.
         </p>
         <p>
-          Puedes gestionar o desactivar las cookies en cualquier momento
-          desde la configuración de tu navegador.
+          Puedes gestionar tus preferencias de privacidad respecto a estos
+          anuncios a través del aviso de cookies que aparece al visitar la
+          web, o consultando directamente la política de privacidad de
+          Google en policies.google.com.
+        </p>
+        <p>
+          Si tienes cualquier duda sobre el tratamiento de tus datos,
+          puedes contactar con nosotros a través del correo indicado en
+          nuestro Aviso Legal.
         </p>
       </div>
     </main>
