@@ -3,6 +3,7 @@ import { Source_Serif_4, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Script from "next/script";
 
 const sourceSerif = Source_Serif_4({
   variable: "--font-serif",
@@ -19,6 +20,9 @@ export const metadata: Metadata = {
   title: "CalculaFinanzas - Calculadoras Financieras Online",
   description:
     "Calculadoras financieras gratuitas: interés compuesto, hipotecas, préstamos y más.",
+  other: {
+    "google-adsense-account": "ca-pub-6283921227007140",
+  },
 };
 
 export default function RootLayout({
@@ -28,9 +32,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body
+            <body
         className={`${sourceSerif.variable} ${inter.variable} antialiased flex min-h-screen flex-col`}
       >
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6283921227007140"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <Header />
         <div className="flex-1">{children}</div>
         <Footer />
