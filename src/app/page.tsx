@@ -11,6 +11,11 @@ const calculadoras = [
     descripcion: "Calcula la cuota mensual y el coste total de tu hipoteca.",
     href: "/calculadoras/hipoteca",
   },
+  {
+    nombre: "Sueldo Bruto a Neto",
+    descripcion: "Estima tu sueldo neto mensual descontando SS e IRPF.",
+    href: "/calculadoras/sueldo-neto",
+  },
 ];
 
 export default function Home() {

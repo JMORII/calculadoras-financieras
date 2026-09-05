@@ -23,6 +23,12 @@ export default function Header() {
           >
             Hipoteca
           </Link>
+          <Link
+            href="/calculadoras/sueldo-neto"
+            className="text-sm font-medium text-hueso/80 hover:text-cobre"
+          >
+            Sueldo Neto
+          </Link>
         </nav>
       </div>
     </header>
