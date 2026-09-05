@@ -29,6 +29,12 @@ export default function Header() {
           >
             Sueldo Neto
           </Link>
+        <Link
+            href="/calculadoras/ahorro"
+            className="text-sm font-medium text-hueso/80 hover:text-cobre"
+          >
+            Ahorro
+          </Link>  
         </nav>
       </div>
     </header>

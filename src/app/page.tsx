@@ -16,6 +16,11 @@ const calculadoras = [
     descripcion: "Estima tu sueldo neto mensual descontando SS e IRPF.",
     href: "/calculadoras/sueldo-neto",
   },
+  {
+    nombre: "Ahorro con Objetivo",
+    descripcion: "Descubre cuánto ahorrar al mes para alcanzar tu meta.",
+    href: "/calculadoras/ahorro",
+  },
 ];
 
 export default function Home() {
