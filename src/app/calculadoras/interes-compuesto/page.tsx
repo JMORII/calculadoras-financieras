@@ -1,5 +1,11 @@
 import CompoundInterestCalculator from "@/app/components/CompoundInterestCalculator";
 
+export const metadata = {
+  title: "Calculadora de Interés Compuesto | CalculaFinanzas",
+  description:
+    "Calcula cuánto crecerá tu dinero con el interés compuesto. Incluye aportaciones mensuales, gráfico de evolución y tabla año a año.",
+};
+
 export default function InteresCompuestoPage() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-pergamino px-6 py-16">

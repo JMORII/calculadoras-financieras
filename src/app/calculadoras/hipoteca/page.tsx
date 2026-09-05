@@ -1,5 +1,11 @@
 import MortgageCalculator from "@/app/components/MortgageCalculator";
 
+export const metadata = {
+  title: "Calculadora de Hipoteca | CalculaFinanzas",
+  description:
+    "Calcula la cuota mensual de tu hipoteca, el total de intereses y compara tipos fijos y variables en España.",
+};
+
 export default function HipotecaPage() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-pergamino px-6 py-16">

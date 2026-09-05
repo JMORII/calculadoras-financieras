@@ -1,5 +1,11 @@
 import SalaryCalculator from "@/app/components/SalaryCalculator";
 
+export const metadata = {
+  title: "Calculadora de Sueldo Bruto a Neto | CalculaFinanzas",
+  description:
+    "Calcula tu sueldo neto mensual descontando Seguridad Social e IRPF, con 12 o 14 pagas.",
+};
+
 export default function SueldoNetoPage() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-pergamino px-6 py-16">
