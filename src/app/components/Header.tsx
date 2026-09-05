@@ -10,12 +10,18 @@ export default function Header() {
         >
           CalculaFinanzas
         </Link>
-        <nav>
+        <nav className="flex gap-6">
           <Link
             href="/calculadoras/interes-compuesto"
             className="text-sm font-medium text-hueso/80 hover:text-cobre"
           >
             Interés Compuesto
+          </Link>
+          <Link
+            href="/calculadoras/hipoteca"
+            className="text-sm font-medium text-hueso/80 hover:text-cobre"
+          >
+            Hipoteca
           </Link>
         </nav>
       </div>
