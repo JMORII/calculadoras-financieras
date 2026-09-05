@@ -165,7 +165,7 @@ export default function CompoundInterestCalculator() {
             <Bar
               dataKey="tasa"
               cursor="pointer"
-                            onClick={(data) => setTasa(String(data.payload.tasa))}
+                                          onClick={(data: any) => setTasa(String(data.payload.tasa))}
             >
               {REFERENCIAS_RENTABILIDAD.map((entrada, indice) => (
                 <Cell key={indice} fill={entrada.color} />
