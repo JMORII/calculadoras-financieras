@@ -4,6 +4,9 @@ import { useState } from "react";
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -18,6 +21,13 @@ type DatoAnual = {
   interesGanado: number;
   capitalFinal: number;
 };
+
+const REFERENCIAS_RENTABILIDAD = [
+  { nombre: "Depósito bancario", tasa: 2, color: "#5C6670" },
+  { nombre: "Inflación media", tasa: 2.5, color: "#5C6670" },
+  { nombre: "MSCI World", tasa: 10, color: "#B8863F" },
+  { nombre: "S&P 500", tasa: 10.6, color: "#B8863F" },
+];
 
 export default function CompoundInterestCalculator() {
   const [capital, setCapital] = useState("");
@@ -128,6 +138,47 @@ export default function CompoundInterestCalculator() {
         onChange={setTasa}
         placeholder="5"
       />
+      
+            <div className="mb-5 -mt-3">
+        <p className="mb-2 text-xs text-piedra">
+          Referencia histórica (haz clic para usar):
+        </p>
+        <ResponsiveContainer width="100%" height={100}>
+          <BarChart data={REFERENCIAS_RENTABILIDAD}>
+            <XAxis
+              dataKey="nombre"
+              tick={{ fontSize: 10, fill: "#5C6670" }}
+              axisLine={false}
+              tickLine={false}
+            />
+                      <Tooltip
+              formatter={(value) => [`${value}%`, "Rentabilidad media"]}
+              contentStyle={{
+                backgroundColor: "#0F1E2E",
+                border: "none",
+                borderRadius: 0,
+                fontSize: 12,
+              }}
+              labelStyle={{ color: "#FAFAF7" }}
+              itemStyle={{ color: "#FAFAF7" }}
+            />
+            <Bar
+              dataKey="tasa"
+              cursor="pointer"
+              onClick={(data) => setTasa(String(data.tasa))}
+            >
+              {REFERENCIAS_RENTABILIDAD.map((entrada, indice) => (
+                <Cell key={indice} fill={entrada.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+        <p className="mt-1 text-xs italic text-piedra/70">
+          Datos históricos a largo plazo. Rentabilidades pasadas no
+          garantizan resultados futuros.
+        </p>
+      </div>
+
       <Campo
         etiqueta="Tiempo (años)"
         valor={tiempo}

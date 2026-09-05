@@ -4,6 +4,9 @@ import { useState } from "react";
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -18,6 +21,12 @@ type DatoAnual = {
   capitalAmortizado: number;
   capitalPendienteFinal: number;
 };
+
+const REFERENCIAS_TIPOS = [
+  { nombre: "Hipoteca fija", tasa: 2.3, color: "#B8863F" },
+  { nombre: "Hipoteca variable", tasa: 2.9, color: "#5C6670" },
+  { nombre: "Media general (INE)", tasa: 3.0, color: "#5C6670" },
+];
 
 export default function MortgageCalculator() {
   const [importe, setImporte] = useState("");
@@ -130,6 +139,47 @@ export default function MortgageCalculator() {
         onChange={setTasa}
         placeholder="3.5"
       />
+
+            <div className="mb-5 -mt-3">
+        <p className="mb-2 text-xs text-piedra">
+          Tipos medios en España (haz clic para usar):
+        </p>
+        <ResponsiveContainer width="100%" height={100}>
+          <BarChart data={REFERENCIAS_TIPOS}>
+            <XAxis
+              dataKey="nombre"
+              tick={{ fontSize: 10, fill: "#5C6670" }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              formatter={(value) => [`${value}%`, "Tipo medio"]}
+              contentStyle={{
+                backgroundColor: "#0F1E2E",
+                border: "none",
+                borderRadius: 0,
+                fontSize: 12,
+              }}
+              labelStyle={{ color: "#FAFAF7" }}
+              itemStyle={{ color: "#FAFAF7" }}
+            />
+            <Bar
+              dataKey="tasa"
+              cursor="pointer"
+              onClick={(data) => setTasa(String(data.tasa))}
+            >
+              {REFERENCIAS_TIPOS.map((entrada, indice) => (
+                <Cell key={indice} fill={entrada.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+        <p className="mt-1 text-xs italic text-piedra/70">
+          Datos orientativos de 2026. Los tipos varían según el banco, el
+          perfil del cliente y las condiciones del préstamo.
+        </p>
+      </div>
+  
       <Campo
         etiqueta="Plazo (años)"
         valor={plazo}
